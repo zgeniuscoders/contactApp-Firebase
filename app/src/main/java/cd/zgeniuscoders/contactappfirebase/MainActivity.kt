@@ -12,12 +12,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Routes
+import cd.zgeniuscoders.contactappfirebase.contact.presentation.addContact.AddContactPage
 import cd.zgeniuscoders.contactappfirebase.contact.presentation.contactList.ContactListPage
 import cd.zgeniuscoders.contactappfirebase.ui.theme.ContactAppFirebaseTheme
 
@@ -29,12 +31,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             ContactAppFirebaseTheme {
                 val navHostController = rememberNavController()
+                val snackbarHostState = SnackbarHostState()
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(title = { Text("Contact App") })
                     },
                     floatingActionButton = {
-                        FloatingActionButton(onClick = { /*TODO*/ }) {
+                        FloatingActionButton(onClick = { navHostController.navigate(Routes.AddContactPage.route) }) {
                             Icon(
                                 imageVector = Icons.Default.PersonAdd,
                                 contentDescription = "ic_person_add",
@@ -49,6 +52,10 @@ class MainActivity : ComponentActivity() {
 
                         composable(route = Routes.ContactListPage.route) {
                             ContactListPage(navHostController)
+                        }
+
+                        composable(route = Routes.AddContactPage.route) {
+                            AddContactPage(navHostController, snackbarHostState)
                         }
 
                     }
