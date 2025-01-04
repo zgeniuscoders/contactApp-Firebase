@@ -1,5 +1,8 @@
 package cd.zgeniuscoders.contactappfirebase.contact.domain.utilis
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class Routes(
     val route: String
 ){
@@ -8,9 +11,15 @@ sealed class Routes(
 
     data object AddContactPage: Routes("add_contact_page")
 
-    data object UpdateContactPage: Routes("update_contact_page")
+    @Serializable
+    data class UpdateContactPage(
+        val id: String
+    ) : Routes("update_contact_page")
 
-    data object ContactDetailsPage: Routes("detail_contact_page")
+    @Serializable
+    data class ContactDetailsPage(
+        val id: String
+    ) : Routes("detail_contact_page")
 
 
 }

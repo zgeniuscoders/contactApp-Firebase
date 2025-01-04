@@ -1,5 +1,6 @@
 package cd.zgeniuscoders.contactappfirebase.contact.presentation.contactList
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,11 +26,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import cd.zgeniuscoders.contactappfirebase.contact.domain.models.Contact
+import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Routes
 import cd.zgeniuscoders.contactappfirebase.ui.theme.ContactAppFirebaseTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -49,54 +52,78 @@ fun ContactListBody(
     onEvent: (event: ContactListEvent) -> Unit,
     navHostController: NavHostController
 ) {
-    LazyColumn {
-        items(state.contacts) { contact ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(10.dp)
-            ) {
-                Card(
-                    modifier = Modifier.size(60.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (state.contacts.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text(
-                            "${contact.name[0]}",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                }
-
-                Column {
                     Text(
-                        contact.name,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(
-                        contact.numberPhone,
+                        "Votre liste de contact est vide.",
+                        textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
+            }
+        } else {
+            items(state.contacts) { contact ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clickable {
+                            navHostController.navigate(Routes.ContactDetailsPage(contact.id))
+                        }
+                ) {
+                    Card(
+                        modifier = Modifier.size(60.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                "${contact.name[0]}",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
 
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "ic_edit",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = { 
-                    onEvent(ContactListEvent.OnDeleteContact(contact.id))
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "ic_delete",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                    Column {
+                        Text(
+                            contact.name,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            contact.numberPhone,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = {
+                        navHostController.navigate(Routes.UpdateContactPage(contact.id))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "ic_edit",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = {
+                        onEvent(ContactListEvent.OnDeleteContact(contact.id))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "ic_delete",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

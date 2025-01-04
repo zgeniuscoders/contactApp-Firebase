@@ -1,11 +1,10 @@
-package cd.zgeniuscoders.contactappfirebase.contact.presentation.addContact
+package cd.zgeniuscoders.contactappfirebase.contact.presentation.contactDetails
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cd.zgeniuscoders.contactappfirebase.contact.domain.models.ContactRequest
 import cd.zgeniuscoders.contactappfirebase.contact.domain.usecases.ContactInteractor
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Resource
 import kotlinx.coroutines.Dispatchers
@@ -14,24 +13,21 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AddContactViewModel(
-    val contactInteractor: ContactInteractor
+class ContactDetailViewModel(
+    private val contactInteractor: ContactInteractor
 ) : ViewModel() {
 
-    var state by mutableStateOf(AddContactState())
+    var state by mutableStateOf(ContactDetailState())
         private set
 
-
-    fun onTriggerEvent(event: AddContactEvent) {
+    fun onTriggerEvent(event: ContactDetailEvent) {
         when (event) {
-            is AddContactEvent.OnEmailChange -> state = state.copy(email = event.value)
-            AddContactEvent.OnFormSubmit -> addContact()
-            is AddContactEvent.OnNameChange -> state = state.copy(name = event.value)
-            is AddContactEvent.OnNumberPhoneChange -> state = state.copy(numberPhone = event.value)
+            is ContactDetailEvent.OnGetContactById -> getContactById(event.id)
         }
     }
 
-    private fun addContact() {
+    private fun getContactById(id: String) {
+
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
@@ -39,30 +35,26 @@ class AddContactViewModel(
             }
 
             contactInteractor
-                .addContact
-                .run(
-                    ContactRequest(
-                        name = state.name,
-                        email = state.email,
-                        numberPhone = state.numberPhone
-                    )
-                ).onEach { res ->
+                .getContactById
+                .run(id)
+                .onEach { res ->
 
                     when (res) {
                         is Resource.Error -> {
                             withContext(Dispatchers.Main) {
                                 state =
-                                    state.copy(message = res.message.toString(), isLoading = false)
+                                    state.copy(isLoading = false, message = res.message.toString())
                             }
                         }
 
                         is Resource.Success -> {
                             withContext(Dispatchers.Main) {
+
+                                val contact = res.data!!.data
+
                                 state = state.copy(
                                     isLoading = false,
-                                    name = "",
-                                    email = "",
-                                    numberPhone = ""
+                                    contact = contact
                                 )
                             }
                         }
@@ -71,6 +63,7 @@ class AddContactViewModel(
                 }.launchIn(viewModelScope)
 
         }
+
     }
 
 }
