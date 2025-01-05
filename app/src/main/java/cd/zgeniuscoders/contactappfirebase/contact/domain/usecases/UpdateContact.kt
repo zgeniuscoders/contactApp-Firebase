@@ -9,7 +9,7 @@ class UpdateContact(
     private val repository: ContactRepository
 ) {
 
-    suspend fun run(id: String, request: ContactRequest): Flow<Resource<Boolean>> {
+    suspend fun run(id: String, request: ContactRequest): Resource<Boolean> {
         return repository.updateContact(id, request)
     }
 

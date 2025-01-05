@@ -1,5 +1,6 @@
 package cd.zgeniuscoders.contactappfirebase.contact.presentation.contactDetails
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +16,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Routes
@@ -30,16 +33,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ContactDetailPage(
-    contactId: String, navHostController: NavHostController, snackbarHostState: SnackbarHostState
+    navHostController: NavHostController, snackbarHostState: SnackbarHostState
 ) {
 
     val vm = koinViewModel<ContactDetailViewModel>()
-    val state = vm.state
+    val state by vm.state.collectAsStateWithLifecycle()
     val onEvent = vm::onTriggerEvent
 
-    LaunchedEffect(true) {
-        onEvent(ContactDetailEvent.OnGetContactById(contactId))
-    }
 
     LaunchedEffect(state.message) {
 

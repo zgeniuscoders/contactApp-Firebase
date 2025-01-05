@@ -1,11 +1,9 @@
 package cd.zgeniuscoders.contactappfirebase
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -20,9 +18,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Routes
@@ -82,13 +82,17 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         modifier = Modifier.padding(innerP),
                         navController = navHostController,
-                        startDestination = Routes.ContactListPage.route){
+                        startDestination = Routes.ContactNavGraph){
 
-                        composable(route = Routes.ContactListPage.route) {
-                            ContactListPage(navHostController)
+                        navigation<Routes.ContactNavGraph>(
+                            startDestination = Routes.ContactListPage
+                        ) {
+                            composable<Routes.ContactListPage> {
+                                ContactListPage(navHostController)
+                            }
                         }
 
-                        composable(route = Routes.AddContactPage.route) {
+                        composable<Routes.AddContactPage> {
                             AddContactPage(navHostController, snackbarHostState)
                         }
 
@@ -105,12 +109,10 @@ class MainActivity : ComponentActivity() {
 
                         composable<Routes.ContactDetailsPage> {
                             val ars = it.toRoute<Routes.UpdateContactPage>()
-                            val contactId = ars.id
 
                             ContactDetailPage(
                                 navHostController = navHostController,
                                 snackbarHostState = snackbarHostState,
-                                contactId = contactId
                             )
                         }
 
@@ -120,3 +122,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

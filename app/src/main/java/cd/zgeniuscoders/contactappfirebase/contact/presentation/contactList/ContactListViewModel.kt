@@ -1,6 +1,5 @@
 package cd.zgeniuscoders.contactappfirebase.contact.presentation.contactList
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -64,28 +63,27 @@ class ContactListViewModel(
                 state = state.copy(isLoading = true)
             }
 
-            contactInteractor
+            val res = contactInteractor
                 .deleteContact
                 .run(id)
-                .onEach { res ->
 
-                    when(res){
-                        is Resource.Error -> {
-                            withContext(Dispatchers.Main){
-                                state = state.copy(isLoading = false, message = res.message.toString())
-                            }
 
-                        }
-                        is Resource.Success -> {
-                            withContext(Dispatchers.Main){
-                                state = state.copy(isLoading = false)
-                            }
-
-                        }
+            when (res) {
+                is Resource.Error -> {
+                    withContext(Dispatchers.Main) {
+                        state = state.copy(isLoading = false, message = res.message.toString())
                     }
 
                 }
-                .launchIn(viewModelScope)
+
+                is Resource.Success -> {
+                    withContext(Dispatchers.Main) {
+                        state = state.copy(isLoading = false)
+                    }
+
+                }
+            }
+
         }
     }
 }

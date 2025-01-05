@@ -9,8 +9,6 @@ import cd.zgeniuscoders.contactappfirebase.contact.domain.models.ContactRequest
 import cd.zgeniuscoders.contactappfirebase.contact.domain.usecases.ContactInteractor
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Resource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -41,35 +39,33 @@ class UpdateContactViewModel(
                 state = state.copy(isLoading = true)
             }
 
-            contactInteractor
+            val res = contactInteractor
                 .getContactById
                 .run(id)
-                .onEach { res ->
 
-                    when (res) {
-                        is Resource.Error -> {
-                            withContext(Dispatchers.Main) {
-                                state =
-                                    state.copy(isLoading = false, message = res.message.toString())
-                            }
-                        }
-
-                        is Resource.Success -> {
-                            withContext(Dispatchers.Main) {
-
-                                val contact = res.data!!.data
-
-                                state = state.copy(
-                                    isLoading = false,
-                                    name = contact.name,
-                                    email = contact.email,
-                                    numberPhone = contact.numberPhone
-                                )
-                            }
-                        }
+            when (res) {
+                is Resource.Error -> {
+                    withContext(Dispatchers.Main) {
+                        state =
+                            state.copy(isLoading = false, message = res.message.toString())
                     }
+                }
 
-                }.launchIn(viewModelScope)
+                is Resource.Success -> {
+                    withContext(Dispatchers.Main) {
+
+                        val contact = res.data!!.data
+
+                        state = state.copy(
+                            isLoading = false,
+                            name = contact.name,
+                            email = contact.email,
+                            numberPhone = contact.numberPhone
+                        )
+                    }
+                }
+            }
+
         }
     }
 
@@ -80,7 +76,7 @@ class UpdateContactViewModel(
                 state = state.copy(isLoading = true)
             }
 
-            contactInteractor
+            val res = contactInteractor
                 .updateContact
                 .run(
                     id, ContactRequest(
@@ -89,27 +85,26 @@ class UpdateContactViewModel(
                         state.email,
                         state.numberPhone
                     )
-                ).onEach { res ->
+                )
 
-                    when (res) {
-                        is Resource.Error -> {
-                            withContext(Dispatchers.Main) {
-                                state =
-                                    state.copy(isLoading = false, message = res.message.toString())
-                            }
-                        }
-
-                        is Resource.Success -> {
-                            withContext(Dispatchers.Main) {
-                                state = state.copy(
-                                    isLoading = false,
-                                    message = "Contact updated successfully"
-                                )
-                            }
-                        }
+            when (res) {
+                is Resource.Error -> {
+                    withContext(Dispatchers.Main) {
+                        state =
+                            state.copy(isLoading = false, message = res.message.toString())
                     }
+                }
 
-                }.launchIn(viewModelScope)
+                is Resource.Success -> {
+                    withContext(Dispatchers.Main) {
+                        state = state.copy(
+                            isLoading = false,
+                            message = "Contact updated successfully"
+                        )
+                    }
+                }
+            }
+
         }
     }
 

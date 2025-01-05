@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContactRepository {
 
-    suspend fun addContact(request: ContactRequest): Flow<Resource<Boolean>>
+    suspend fun addContact(request: ContactRequest): Resource<Boolean>
 
-    suspend fun deleteContact(id: String): Flow<Resource<Boolean>>
+    suspend fun deleteContact(id: String): Resource<Boolean>
 
-    suspend fun updateContact(id: String, request: ContactRequest): Flow<Resource<Boolean>>
+    suspend fun updateContact(id: String, request: ContactRequest): Resource<Boolean>
 
     suspend fun getContacts(): Flow<Resource<ContactsDto>>
 
-    suspend fun getContactById(id: String): Flow<Resource<ContactDto>>
+    suspend fun getContactById(id: String): Resource<ContactDto>
 
 }

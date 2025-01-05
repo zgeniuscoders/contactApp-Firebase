@@ -9,13 +9,11 @@ import cd.zgeniuscoders.contactappfirebase.contact.domain.models.ContactRequest
 import cd.zgeniuscoders.contactappfirebase.contact.domain.usecases.ContactInteractor
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Resource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AddContactViewModel(
-    val contactInteractor: ContactInteractor
+    private val contactInteractor: ContactInteractor
 ) : ViewModel() {
 
     var state by mutableStateOf(AddContactState())
@@ -38,7 +36,7 @@ class AddContactViewModel(
                 state = state.copy(isLoading = true)
             }
 
-            contactInteractor
+            val res = contactInteractor
                 .addContact
                 .run(
                     ContactRequest(
@@ -46,29 +44,27 @@ class AddContactViewModel(
                         email = state.email,
                         numberPhone = state.numberPhone
                     )
-                ).onEach { res ->
+                )
 
-                    when (res) {
-                        is Resource.Error -> {
-                            withContext(Dispatchers.Main) {
-                                state =
-                                    state.copy(message = res.message.toString(), isLoading = false)
-                            }
-                        }
-
-                        is Resource.Success -> {
-                            withContext(Dispatchers.Main) {
-                                state = state.copy(
-                                    isLoading = false,
-                                    name = "",
-                                    email = "",
-                                    numberPhone = ""
-                                )
-                            }
-                        }
+            when (res) {
+                is Resource.Error -> {
+                    withContext(Dispatchers.Main) {
+                        state =
+                            state.copy(message = res.message.toString(), isLoading = false)
                     }
+                }
 
-                }.launchIn(viewModelScope)
+                is Resource.Success -> {
+                    withContext(Dispatchers.Main) {
+                        state = state.copy(
+                            isLoading = false,
+                            name = "",
+                            email = "",
+                            numberPhone = ""
+                        )
+                    }
+                }
+            }
 
         }
     }

@@ -1,66 +1,86 @@
 package cd.zgeniuscoders.contactappfirebase.contact.presentation.contactDetails
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import cd.zgeniuscoders.contactappfirebase.contact.domain.usecases.ContactInteractor
 import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Resource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import cd.zgeniuscoders.contactappfirebase.contact.domain.utilis.Routes
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ContactDetailViewModel(
-    private val contactInteractor: ContactInteractor
+    private val contactInteractor: ContactInteractor,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    var state by mutableStateOf(ContactDetailState())
-        private set
+    private val contactId = savedStateHandle.toRoute<Routes.ContactDetailsPage>().id
+
+    init {
+        Log.i("VM", "vm init")
+    }
+
+
+    private val _state = MutableStateFlow(ContactDetailState())
+    val state = _state
+        .onStart {
+            getContactById()
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            _state.value
+        )
 
     fun onTriggerEvent(event: ContactDetailEvent) {
         when (event) {
-            is ContactDetailEvent.OnGetContactById -> getContactById(event.id)
+            is ContactDetailEvent.OnGetContactById -> getContactById()
         }
     }
 
-    private fun getContactById(id: String) {
+    private fun getContactById() {
 
-        viewModelScope.launch(Dispatchers.IO) {
+        Log.e("CONTACT_ID", contactId)
 
-            withContext(Dispatchers.Main) {
-                state = state.copy(isLoading = true)
+        viewModelScope.launch {
+
+
+            _state.update {
+                it.copy(isLoading = true)
             }
 
-            contactInteractor
+            val res = contactInteractor
                 .getContactById
-                .run(id)
-                .onEach { res ->
+                .run(contactId)
 
-                    when (res) {
-                        is Resource.Error -> {
-                            withContext(Dispatchers.Main) {
-                                state =
-                                    state.copy(isLoading = false, message = res.message.toString())
-                            }
-                        }
-
-                        is Resource.Success -> {
-                            withContext(Dispatchers.Main) {
-
-                                val contact = res.data!!.data
-
-                                state = state.copy(
-                                    isLoading = false,
-                                    contact = contact
-                                )
-                            }
-                        }
+            when (res) {
+                is Resource.Error -> {
+                    _state.update {
+                        it.copy(isLoading = false, message = res.message.toString())
                     }
 
-                }.launchIn(viewModelScope)
+                }
+
+                is Resource.Success -> {
+
+
+                    val contact = res.data!!.data
+
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            contact = contact
+                        )
+                    }
+
+                }
+
+            }
 
         }
 

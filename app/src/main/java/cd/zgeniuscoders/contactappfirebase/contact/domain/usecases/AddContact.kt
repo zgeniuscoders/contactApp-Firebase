@@ -9,7 +9,7 @@ class AddContact(
     private val repository: ContactRepository
 ) {
 
-    suspend fun run(request: ContactRequest): Flow<Resource<Boolean>> {
+    suspend fun run(request: ContactRequest): Resource<Boolean> {
         return repository.addContact(request)
     }
 

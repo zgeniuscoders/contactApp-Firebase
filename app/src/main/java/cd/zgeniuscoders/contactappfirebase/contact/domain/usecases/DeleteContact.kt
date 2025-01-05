@@ -8,7 +8,7 @@ class DeleteContact(
     private val repository: ContactRepository
 ) {
 
-    suspend fun run(id: String): Flow<Resource<Boolean>> {
+    suspend fun run(id: String): Resource<Boolean> {
         return repository.deleteContact(id)
     }
 

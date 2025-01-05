@@ -1,6 +1,7 @@
 package cd.zgeniuscoders.contactappfirebase.di
 
-import cd.zgeniuscoders.contactappfirebase.contact.data.networking.FirebaseContactRepositoryImpl
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cd.zgeniuscoders.contactappfirebase.contact.data.network.FirebaseContactRepositoryImpl
 import cd.zgeniuscoders.contactappfirebase.contact.domain.repository.ContactRepository
 import cd.zgeniuscoders.contactappfirebase.contact.domain.usecases.ContactInteractor
 import cd.zgeniuscoders.contactappfirebase.contact.presentation.addContact.AddContactViewModel
@@ -8,6 +9,7 @@ import cd.zgeniuscoders.contactappfirebase.contact.presentation.contactDetails.C
 import cd.zgeniuscoders.contactappfirebase.contact.presentation.contactList.ContactListViewModel
 import cd.zgeniuscoders.contactappfirebase.contact.presentation.updateContact.UpdateContactViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
@@ -28,20 +30,9 @@ val appModule = module {
 
     }
 
-    single {
-        ContactListViewModel(get<ContactInteractor>())
-    }
-
-    single {
-        AddContactViewModel(get<ContactInteractor>())
-    }
-
-    single {
-        UpdateContactViewModel(get<ContactInteractor>())
-    }
-
-    single {
-        ContactDetailViewModel(get<ContactInteractor>())
-    }
+    viewModelOf(::ContactListViewModel)
+    viewModelOf(::AddContactViewModel)
+    viewModelOf(::UpdateContactViewModel)
+    viewModelOf(::ContactDetailViewModel)
 
 }

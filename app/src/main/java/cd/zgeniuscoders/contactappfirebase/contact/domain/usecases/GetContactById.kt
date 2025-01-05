@@ -9,7 +9,7 @@ class GetContactById(
     private val repository: ContactRepository
 ) {
 
-    suspend fun run(id: String): Flow<Resource<ContactDto>> {
+    suspend fun run(id: String): Resource<ContactDto> {
         return repository.getContactById(id)
     }
 
